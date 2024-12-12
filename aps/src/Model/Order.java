@@ -5,8 +5,8 @@ public class Order {
     private final double orderTime;
     private double dispatchTime;
     private double deliveryTime; // Время выполнения доставки
-    private boolean rejected; // Статус отклонения заказа
-    private int courierId; // ID курьера, назначенного для доставки
+    private boolean rejected;
+    private int courierId;
 
     /**
      * @param id Уникальный идентификатор заказа.
