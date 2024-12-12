@@ -61,7 +61,7 @@ public class Model {
             }
 
             // Увеличиваем время симуляции на 0.5
-            currentTime += 0.5;
+            currentTime += 1;
 
             stepByStepStats();
         }
@@ -117,8 +117,7 @@ public class Model {
                 }
             }
 
-            currentTime += 0.5;
-
+            currentTime += 1;
         }
         printSimulationResults();
     }
@@ -128,19 +127,34 @@ public class Model {
         System.out.println("Total number of generated orders: " + orders.size());
 
         couriersTable();
+        generatorsTable();
     }
 
     private void couriersTable() {
         System.out.println("Stats for couriers:");
-        System.out.println("+----+------------------+---------------------+");
-        System.out.println("| ID | Processed Orders | Total Work Time |");
-        System.out.println("+----+------------------+---------------------+");
+        System.out.println("+----+----------------------+-----------------+");
+        System.out.println("| ID | Processed Orders     | Total Work Time |");
+        System.out.println("+----+----------------------+-----------------+");
         for (Courier courier : couriers) {
             System.out.printf("| %-2d | %-19d | %-15.2f |\n",
                     courier.getId(),
                     courier.getOrderAmount(),
                     courier.getTotalWorkTime());
         }
-        System.out.println("+----+------------------+---------------------+");
+        System.out.println("+----+----------------------+-----------------+");
+    }
+
+    private void generatorsTable() {
+        System.out.println("Stats for order generators:");
+        System.out.println("+----+--------------+");
+        System.out.println("| ID | Total Orders |");
+        System.out.println("+----+--------------+");
+        for (OrderGenerator generator : generators) {
+            System.out.printf("| %-2d | %-12d |\n",
+                    generator.getId(),
+                    generator.generatedItemsAmount,
+                    generator.getRejectedOrders());
+        }
+        System.out.println("+----+--------------+");
     }
 }

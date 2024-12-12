@@ -18,7 +18,7 @@ public class Main {
                 break;
 
             default:
-                System.out.println("Invalid input. Please enter one of the following: automatic, step, or optimal.");
+                System.out.println("Некорректный ввод данных, попробуйте снова.");
         }
 
         sc.close();

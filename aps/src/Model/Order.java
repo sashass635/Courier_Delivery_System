@@ -3,7 +3,7 @@ package Model;
 public class Order {
     private final int id;
     private final double orderTime;
-    private double dispatchTime; // Время назначения курьера
+    private double dispatchTime;
     private double deliveryTime; // Время выполнения доставки
     private boolean rejected; // Статус отклонения заказа
     private int courierId; // ID курьера, назначенного для доставки
