@@ -12,9 +12,9 @@ public class OrderGenerator {
     private int totalRequests = 0;
     private int rejectedOrders = 0;
     private double totalWaitTime = 0.0;
-    private double totalProcessTime = 0.0;
     private double totalWaitTimeSquared = 0.0;
-    private double totalProcessTimeSquared = 0.0;
+    private double totalSystemTime = 0.0; // Общее время в системе
+    private double totalSystemTimeSquared = 0.0; // Сумма квадратов времени в системе
 
     public OrderGenerator(int id, double lambda) {
         this.id = id;
@@ -26,27 +26,26 @@ public class OrderGenerator {
         totalRequests++;
         if (currentTime >= nextOrderTime) {
             orderId++;
-            generatedItemsAmount++; 
+            generatedItemsAmount++;
             Order newOrder = new Order(orderId, currentTime);
 
             double waitTime = currentTime - nextOrderTime; // Время ожидания
             totalWaitTime += waitTime;
-            totalWaitTimeSquared += waitTime * waitTime; 
+            totalWaitTimeSquared += waitTime * waitTime;
 
-            double processTime = random.nextDouble() * 10; // случайное время обработки от 0 до 10
-            totalProcessTime += processTime;
-            totalProcessTimeSquared += processTime * processTime; 
+            double serviceTime = newOrder.getServiceTime(); // Время обработки заказа
+            double systemTime = waitTime + serviceTime; // Время в системе
+            totalSystemTime += systemTime;
+            totalSystemTimeSquared += systemTime * systemTime;
 
             scheduleNextOrder(); // Запланировать следующий заказ
             return newOrder;
         } else {
-            if (random.nextDouble() < 0.1) { // 10% вероятность отказа
-                rejectedOrders++; 
-                return null;
-            }
+            rejectedOrders++;
             return null;
         }
     }
+
     public double getNextOrderTime() {
         return nextOrderTime;
     }
@@ -75,10 +74,6 @@ public class OrderGenerator {
         return generatedItemsAmount == 0 ? 0 : totalWaitTime / generatedItemsAmount;
     }
 
-    public double getAverageProcessTime() {
-        return generatedItemsAmount > 0 ? totalProcessTime / generatedItemsAmount : 0.0;
-    }
-
     public double getWaitTimeVariance() {
         if (generatedItemsAmount > 0) {
             double mean = getAverageWaitTime();
@@ -86,15 +81,17 @@ public class OrderGenerator {
         }
         return 0.0;
     }
+    public double getAverageSystemTime() {
+        return generatedItemsAmount == 0 ? 0 : totalSystemTime / generatedItemsAmount;
+    }
 
-    public double getProcessTimeVariance() {
+    public double getSystemTimeVariance() {
         if (generatedItemsAmount > 0) {
-            double mean = getAverageProcessTime();
-            return (totalProcessTimeSquared / generatedItemsAmount) - (mean * mean);
+            double mean = getAverageSystemTime();
+            return (totalSystemTimeSquared / generatedItemsAmount) - (mean * mean);
         }
         return 0.0;
     }
-
     public int getGeneratedOrders() {
         return generatedItemsAmount;
     }

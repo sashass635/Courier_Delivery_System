@@ -45,4 +45,8 @@ public class Order {
     public void rejectOrder() {
         this.rejected = true;
     }
+
+    public double getServiceTime() {
+        return deliveryTime;
+    }
 }

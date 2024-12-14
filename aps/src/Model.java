@@ -128,45 +128,54 @@ public class Model {
     private void printSimulationResults() {
         System.out.printf("Simulation ended at time %.2f \n", currentTime);
         System.out.println("Total number of generated orders: " + orders.size());
+        System.out.println("Total number of rejected calls: " + getTotalRejectedOrders()); // Вывод общего количества отклоненных заказов
+        double rejectedRate = (orders.size() > 0) ? (100.0 * getTotalRejectedOrders() / orders.size()) : 0.0;
+        System.out.printf("Rejected rate is %.2f %% percent\n", rejectedRate);
 
         couriersTable();
         generatorsTable();
     }
 
+    private int getTotalRejectedOrders() {
+        int totalRejected = 0;
+        for (OrderGenerator generator : generators) {
+            totalRejected += generator.getRejectedOrders(); // Предполагается, что этот метод возвращает количество отклоненных заказов для генератора
+        }
+        return totalRejected;
+    }
+
     private void couriersTable() {
         System.out.println("Stats for couriers:");
-        System.out.println("+----+----------------------+-----------------+");
-        System.out.println("| ID | Processed Orders     | Total Work Time |");
-        System.out.println("+----+----------------------+-----------------+");
+        System.out.println("+----+-----------------+");
+        System.out.println("| ID | Total Work Time |");
+        System.out.println("+----+-----------------+");
         for (Courier courier : couriers) {
-            System.out.printf("| %-2d | %-19d | %-15.2f |\n",
+            System.out.printf("| %-2d | %-15.2f |\n",
                     courier.getId(),
-                    courier.getOrderAmount(),
                     courier.getTotalWorkTime());
         }
-        System.out.println("+----+----------------------+-----------------+");
+        System.out.println("+----+-----------------+");
     }
 
     private void generatorsTable() {
         System.out.println("Stats for order generators:");
-        System.out.println("+----+-------------+------------------+------------------+------------------+------------------+------------------+");
-        System.out.printf("| %-2s | %-11s | %-16s | %-16s | %-16s | %-16s | %-16s |\n",
-                "ID", "Total Calls", "Rejected Calls (%)", "Avg Wait Time", "Avg Process Time", "Wait Time Variance", "Process Time Variance");
-        System.out.println("+----+-------------+------------------+------------------+------------------+------------------+------------------+");
-
+        System.out.println("+----+-------------+--------------------+------------------+--------------------+------------------+---------------------+");
+        System.out.printf("| %-2s | %-10s | %-14s | %-16s | %-16s | %-16s | %-16s |\n",
+                "ID", "Total Calls", "Rejected Calls (%)", "Avg Wait Time", "Wait Time Variance", "Avg System Time", "System Time Variance");
+        System.out.println("+----+-------------+--------------------+------------------+--------------------+------------------+---------------------+");
         for (OrderGenerator generator : generators) {
             System.out.printf(
-                    "| %2d | %13d | %18.2f | %18.2f | %18.2f | %18.2f | %18.2f |\n",
+                    "| %2d | %11d | %18.2f | %17.2f | %17.2f | %18.2f | %18.2f |\n",
                     generator.getId(),
                     generator.getGeneratedOrders(),
                     100.0 * generator.getRejectedOrders() / generator.getTotalRequests(),
                     generator.getAverageWaitTime(),
-                    generator.getAverageProcessTime(),
                     generator.getWaitTimeVariance(),
-                    generator.getProcessTimeVariance()
+                    generator.getAverageSystemTime(), // Среднее время в системе
+                    generator.getSystemTimeVariance()
             );
         }
 
-        System.out.println("+----+-------------+------------------+------------------+------------------+------------------+------------------+");
+        System.out.println("+----+-------------+--------------------+------------------+--------------------+------------------+---------------------+");
     }
 }
