@@ -13,7 +13,7 @@ public class Main {
                 break;
 
             case "step":
-                Model stepModel = new Model(3, 10, 0.5, 3);
+                Model stepModel = new Model(1, 3, 0.5, 3);
                 stepModel.runStepByStep(1000);
                 break;
 

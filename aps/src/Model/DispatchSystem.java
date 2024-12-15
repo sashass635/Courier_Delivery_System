@@ -2,9 +2,11 @@ package Model;
 
 public class DispatchSystem {
     private final Buffer buffer;
+    private final OrderGenerator generator;
 
-    public DispatchSystem(Buffer buffer) {
+    public DispatchSystem(Buffer buffer, OrderGenerator generator) {
         this.buffer = buffer;
+        this.generator = generator;
     }
 
     /**
@@ -14,8 +16,9 @@ public class DispatchSystem {
      */
     public void addOrderToBuffer(Order order) {
         if (buffer.isFull()) {
-            buffer.rejectOldestOrder(); // Удалить самый старый заказ, чтобы освободить место
+            buffer.rejectOldestOrder(); // Удалить самый старый заказ
+            generator.incrementRejectedOrders(); // Увеличиваем счетчик отклоненных заказов
         }
-        buffer.addOrder(order); // Добавить новый заказ в буфер
+        buffer.addOrder(order);
     }
 }

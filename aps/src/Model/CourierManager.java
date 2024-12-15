@@ -10,8 +10,6 @@ public class CourierManager {
     }
 
     /**
-     * Находим первого доступного курьера.
-     *
      * @return доступный курьер или null, если все заняты.
      */
     private Courier findAvailableCourier() {
@@ -29,7 +27,7 @@ public class CourierManager {
         if (availableCourier == null) {
             return;
         }
-        Order order = buffer.getNextOrder(); // Получить заказ из буфера
+        Order order = buffer.getNextOrder();
         availableCourier.assignOrder(order, currentTime); // Назначить заказ курьеру
     }
 

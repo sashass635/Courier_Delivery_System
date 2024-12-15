@@ -46,11 +46,10 @@ public class Courier {
 
     public Order releaseOrder() {
         if (currentOrder != null) {
-            double departureTime = currentOrder.getDispatchTime() + currentOrder.getDeliveryTime();
-            double workTime = departureTime - currentOrder.getDispatchTime();
+            double completionTime = currentOrder.getDispatchTime() + currentOrder.getDeliveryTime();
+            double workTime = completionTime - currentOrder.getDispatchTime();
 
             totalWorkTime += workTime;
-
             Order completedOrder = currentOrder;
             currentOrder = null;
             isBusy = false;
@@ -70,4 +69,9 @@ public class Courier {
     public int getCurrentOrderId() {
         return (currentOrder != null ? currentOrder.getId() : 0);
     }
+
+    public double getCourierLoadPercentage(double simulationTime) {
+        return totalWorkTime == 0 ? 0 : (totalWorkTime / simulationTime) * 100;
+    }
+
 }

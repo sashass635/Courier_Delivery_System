@@ -5,7 +5,7 @@ public class Model {
     private final List<Courier> couriers;
     private final Buffer buffer;
     private final List<OrderGenerator> generators;
-    private final DispatchSystem dispatchSystem;
+    private final List<DispatchSystem> dispatchSystems;
     private final CourierManager courierManager;
     private final List<Order> orders;
     private double currentTime;
@@ -17,10 +17,12 @@ public class Model {
         }
         this.buffer = new Buffer(bufferCapacity);
         this.generators = new ArrayList<>();
+        this.dispatchSystems = new ArrayList<>(); // Инициализация списка
         for (int i = 0; i < numGenerators; i++) {
-            generators.add(new OrderGenerator(i + 1, lambda));
+            OrderGenerator generator = new OrderGenerator(i + 1, lambda);
+            generators.add(generator);
+            dispatchSystems.add(new DispatchSystem(buffer, generator)); // Создание DispatchSystem для каждого генератора
         }
-        this.dispatchSystem = new DispatchSystem(buffer);
         this.courierManager = new CourierManager(couriers);
         this.orders = new ArrayList<>();
         this.currentTime = 0.0;
@@ -43,7 +45,7 @@ public class Model {
                     Order newOrder = generator.generateOrder(currentTime);
                     System.out.println("Заказ " + newOrder.getId() + " был сгенерирован.");
                     orders.add(newOrder);
-                    dispatchSystem.addOrderToBuffer(newOrder); // Добавляем в буфер
+                    dispatchSystems.get(generator.getId() - 1).addOrderToBuffer(newOrder); // Добавляем в буфер
                     generator.scheduleNextOrder(); // Планируем следующее время для заказа
                     System.out.println("Следующее время генерации заказа: " + generator.getNextOrderTime());
                     break;
@@ -68,7 +70,7 @@ public class Model {
         System.out.println("Simulation ended.");
     }
 
- private void stepByStepStats() {
+    private void stepByStepStats() {
         System.out.println("==== Step-By-Step Statistics ====");
         System.out.println("Buffer information:");
         buffer.info();
@@ -104,7 +106,7 @@ public class Model {
                 if (currentTime >= generator.getNextOrderTime()) {
                     Order newOrder = generator.generateOrder(currentTime);
                     orders.add(newOrder);
-                    dispatchSystem.addOrderToBuffer(newOrder);
+                    dispatchSystems.get(generator.getId() - 1).addOrderToBuffer(newOrder);
                     generator.scheduleNextOrder();
                 }
             }
@@ -114,6 +116,7 @@ public class Model {
             for (Courier courier : couriers) {
                 if (courier.hasCompletedOrder(currentTime)) {
                     Order completedOrder = courier.releaseOrder();
+                    System.out.println("Заказ " + completedOrder.getId() + " выполнен курьером " + courier.getId());
                 }
             }
 
@@ -125,36 +128,55 @@ public class Model {
     private void printSimulationResults() {
         System.out.printf("Simulation ended at time %.2f \n", currentTime);
         System.out.println("Total number of generated orders: " + orders.size());
+        System.out.println("Total number of rejected calls: " + getTotalRejectedOrders());
+        double rejectedRate = (orders.size() > 0) ? (100.0 * getTotalRejectedOrders() / orders.size()) : 0.0;
+        System.out.printf("Rejected rate is %.2f %% percent\n", rejectedRate);
 
         couriersTable();
         generatorsTable();
     }
 
+    private int getTotalRejectedOrders() {
+        int totalRejected = 0;
+        for (OrderGenerator generator : generators) {
+            totalRejected += generator.getRejectedOrders();
+        }
+        return totalRejected;
+    }
+
     private void couriersTable() {
         System.out.println("Stats for couriers:");
-        System.out.println("+----+----------------------+-----------------+");
-        System.out.println("| ID | Processed Orders     | Total Work Time |");
-        System.out.println("+----+----------------------+-----------------+");
+        System.out.println("+----+-----------------+-----------------+");
+        System.out.println("| ID | Total Work Time | Load Percentage |");
+        System.out.println("+----+-----------------+-----------------+");
         for (Courier courier : couriers) {
-            System.out.printf("| %-2d | %-19d | %-15.2f |\n",
+            double loadPercentage = courier.getCourierLoadPercentage(currentTime);
+            System.out.printf("| %-2d | %-15.2f | %-15.2f |\n",
                     courier.getId(),
-                    courier.getOrderAmount(),
-                    courier.getTotalWorkTime());
+                    courier.getTotalWorkTime(), loadPercentage);
         }
-        System.out.println("+----+----------------------+-----------------+");
+        System.out.println("+----+-----------------+-----------------+");
     }
 
     private void generatorsTable() {
         System.out.println("Stats for order generators:");
-        System.out.println("+----+--------------+");
-        System.out.println("| ID | Total Orders |");
-        System.out.println("+----+--------------+");
+        System.out.println("+----+-------------+--------------------+------------------+--------------------+------------------+---------------------+");
+        System.out.printf("| %-2s | %-10s | %-14s | %-16s | %-16s | %-16s | %-16s |\n",
+                "ID", "Total Calls", "Rejected Calls (%)", "Avg Wait Time", "Wait Time Variance", "Avg System Time", "System Time Variance");
+        System.out.println("+----+-------------+--------------------+------------------+--------------------+------------------+---------------------+");
         for (OrderGenerator generator : generators) {
-            System.out.printf("| %-2d | %-12d |\n",
+            System.out.printf(
+                    "| %2d | %11d | %18.2f | %17.2f | %17.2f | %18.2f | %18.2f |\n",
                     generator.getId(),
-                    generator.generatedItemsAmount,
-                    generator.getRejectedOrders());
+                    generator.getGeneratedOrders(),
+                    100.0 * generator.getRejectedOrders() / generator.getTotalRequests(),
+                    generator.getAverageWaitTime(),
+                    generator.getWaitTimeVariance(),
+                    generator.getAverageSystemTime(), // Среднее время в системе
+                    generator.getSystemTimeVariance()
+            );
         }
-        System.out.println("+----+--------------+");
+
+        System.out.println("+----+-------------+--------------------+------------------+--------------------+------------------+---------------------+");
     }
 }

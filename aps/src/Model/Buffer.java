@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 public class Buffer {
     private final int capacity; // Максимальное количество заказов в буфере
-    private final LinkedList<Order> orders; // Очередь заказов (LIFO)
+    private final LinkedList<Order> orders; 
 
     public Buffer(int capacity) {
         this.capacity = capacity;
