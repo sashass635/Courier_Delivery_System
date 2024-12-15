@@ -128,7 +128,7 @@ public class Model {
     private void printSimulationResults() {
         System.out.printf("Simulation ended at time %.2f \n", currentTime);
         System.out.println("Total number of generated orders: " + orders.size());
-        System.out.println("Total number of rejected calls: " + getTotalRejectedOrders()); // Вывод общего количества отклоненных заказов
+        System.out.println("Total number of rejected calls: " + getTotalRejectedOrders());
         double rejectedRate = (orders.size() > 0) ? (100.0 * getTotalRejectedOrders() / orders.size()) : 0.0;
         System.out.printf("Rejected rate is %.2f %% percent\n", rejectedRate);
 
@@ -139,7 +139,7 @@ public class Model {
     private int getTotalRejectedOrders() {
         int totalRejected = 0;
         for (OrderGenerator generator : generators) {
-            totalRejected += generator.getRejectedOrders(); // Предполагается, что этот метод возвращает количество отклоненных заказов для генератора
+            totalRejected += generator.getRejectedOrders();
         }
         return totalRejected;
     }
