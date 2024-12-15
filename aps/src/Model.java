@@ -146,15 +146,16 @@ public class Model {
 
     private void couriersTable() {
         System.out.println("Stats for couriers:");
-        System.out.println("+----+-----------------+");
-        System.out.println("| ID | Total Work Time |");
-        System.out.println("+----+-----------------+");
+        System.out.println("+----+-----------------+-----------------+");
+        System.out.println("| ID | Total Work Time | Load Percentage |");
+        System.out.println("+----+-----------------+-----------------+");
         for (Courier courier : couriers) {
-            System.out.printf("| %-2d | %-15.2f |\n",
+            double loadPercentage = courier.getCourierLoadPercentage(currentTime);
+            System.out.printf("| %-2d | %-15.2f | %-15.2f |\n",
                     courier.getId(),
-                    courier.getTotalWorkTime());
+                    courier.getTotalWorkTime(), loadPercentage);
         }
-        System.out.println("+----+-----------------+");
+        System.out.println("+----+-----------------+-----------------+");
     }
 
     private void generatorsTable() {

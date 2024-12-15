@@ -69,4 +69,9 @@ public class Courier {
     public int getCurrentOrderId() {
         return (currentOrder != null ? currentOrder.getId() : 0);
     }
+
+    public double getCourierLoadPercentage(double simulationTime) {
+        return totalWorkTime == 0 ? 0 : (totalWorkTime / simulationTime) * 100;
+    }
+
 }
